@@ -692,7 +692,7 @@ static UINT gdi_SurfaceCommand_Alpha(rdpGdi* gdi, RdpgfxClientContext* context,
 	{
 		UINT32 x, y;
 
-		if (Stream_GetRemainingLength(&s) < cmd->height * cmd->width)
+		if (Stream_GetRemainingLength(&s) < cmd->height * cmd->width * 1ULL)
 			return ERROR_INVALID_DATA;
 
 		for (y = cmd->top; y < cmd->top + cmd->height; y++)
@@ -986,8 +986,8 @@ static UINT gdi_CreateSurface(RdpgfxClientContext* context,
 			goto fail;
 	}
 
-	surface->scanline = gfx_align_scanline(surface->width * 4, 16);
-	surface->data = (BYTE*)_aligned_malloc(surface->scanline * surface->height, 16);
+	surface->scanline = gfx_align_scanline(surface->width * 4UL, 16);
+	surface->data = (BYTE*)_aligned_malloc(surface->scanline * surface->height * 1ULL, 16);
 
 	if (!surface->data)
 	{
@@ -1159,10 +1159,7 @@ static UINT gdi_SurfaceToSurface(RdpgfxClientContext* context,
 		                        rectSrc->top, NULL, FREERDP_FLIP_NONE))
 			goto fail;
 
-		invalidRect.left = destPt->x;
-		invalidRect.top = destPt->y;
-		invalidRect.right = destPt->x + rectSrc->right;
-		invalidRect.bottom = destPt->y + rectSrc->bottom;
+		invalidRect = rect;
 		region16_union_rect(&surfaceDst->invalidRegion, &surfaceDst->invalidRegion, &invalidRect);
 		status = IFCALLRESULT(CHANNEL_RC_OK, context->UpdateSurfaceArea, context,
 		                      surfaceDst->surfaceId, 1, &invalidRect);
@@ -1275,10 +1272,7 @@ static UINT gdi_CacheToSurface(RdpgfxClientContext* context,
 		                        FREERDP_FLIP_NONE))
 			goto fail;
 
-		invalidRect.left = destPt->x;
-		invalidRect.top = destPt->y;
-		invalidRect.right = destPt->x + cacheEntry->width;
-		invalidRect.bottom = destPt->y + cacheEntry->height;
+		invalidRect = rect;
 		region16_union_rect(&surface->invalidRegion, &surface->invalidRegion, &invalidRect);
 		status = IFCALLRESULT(CHANNEL_RC_OK, context->UpdateSurfaceArea, context,
 		                      surface->surfaceId, 1, &invalidRect);
