@@ -293,7 +293,7 @@ BOOL freerdp_channel_send_packet(rdpRdp* rdp, UINT16 channelId, size_t totalSize
 	Stream_Write_UINT32(s, totalSize);
 	Stream_Write_UINT32(s, flags);
 
-	if (!Stream_EnsureCapacity(s, chunkSize))
+	if (!Stream_EnsureRemainingCapacity(s, chunkSize))
 	{
 		Stream_Release(s);
 		return FALSE;
